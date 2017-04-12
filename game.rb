@@ -94,6 +94,13 @@ def play(player, board)
   board.draw_grid
 end
 
+def tie_check(grid)
+  count = 0
+  grid.each do |key, value|
+    count += 1 if value == ' '
+  end
+  count
+end
 
 # INITIALIZE BOARD AND PLAYERS
 board = Board.new
@@ -114,12 +121,19 @@ player1 = Player.new(p1_name, 'X')
 player2 = Player.new(p2_name, 'O')
 
 # BEGIN PLAYING
+turns = 0
 while true
   play(player1, board)
   if board.check_win(player1.piece_type) == true
   	puts "#{player1.name} wins!!!"
   	break
   end
+
+  if tie_check(board.grid) == 0
+    puts "TIE GAME! TRY AGAIN!!!"
+    break
+  end
+
   play(player2,board)
   if board.check_win(player2.piece_type) == true
   	puts "#{player2.name} wins!!!"

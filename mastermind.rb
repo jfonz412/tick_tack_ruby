@@ -1,4 +1,6 @@
 class Computer
+  attr_reader :code
+
   def initialize(type)
   	@type = type
   	guess_or_check
@@ -14,12 +16,42 @@ class Computer
     for n in 0..3
       @code[n] = 1 + rand(8)
     end
+    #TESTING, DELETE BELOW
+    @code = [8,4,2,1]
   end
 
   public
   def check(guess_attempt)
-  	guess = guess_attempt.split('')
-  	#WORKING ON THE CHECKING HERE!!!
+  	guess = guess_attempt.split('').collect {|i| i.to_i}
+  	temp_code = @code.dup
+
+   	if guess == temp_code 
+   	  puts("YOU WIN!!!")
+   	  return true
+   	else
+   	  correct_place_count = 0
+   	  correct_num_count = 0
+   	  # CHECK FOR CORRECT NUMBER WITH CORRECT PLACEMENT
+   	  for n in 0..3
+   	  	if guess[n] == temp_code[n]
+   	  	  correct_place_count += 1
+   	  	  guess[n] = nil
+   	  	  temp_code[n] = nil
+   	  	end
+   	  end
+      # CHECK FOR CORRECT NUMBERS IN THE WRONG PLACE
+   	  for i in 0..3
+   	  	for k in 0..3
+   	  	  if temp_code[i] == guess[k] && guess[k] != nil
+   	  	  	correct_num_count += 1
+   	  	  	temp_code[i] = nil
+   	  	  end
+   	  	end
+   	  end
+
+    end
+    puts "Sorry, but you guessed #{correct_place_count} numbers completely correct and #{correct_num_count} correct but in the wrong place."
+    false
   end
 
 end
@@ -29,11 +61,11 @@ class Player
   def initialize(name,type)
   	@name = name
   	@type = type
-  	
-  end
  
+  end
+   
   def guess_or_check
-  	guess_code if @type == :guess
+  	guess_code if @type == :guess #else create_code
   end
   
   private
@@ -58,4 +90,6 @@ player = Player.new("Jimbo", :guess)
 
 # Play game
 player.guess_or_check
-computer.check(player.guess)
+while computer.check(player.guess) == false
+  player.guess_or_check
+end
