@@ -1,5 +1,8 @@
+require './master_mod.rb'
+include Mastermind
+
 class Computer
-  attr_reader :code
+  #attr_reader :code
 
   def initialize(type)
   	@type = type
@@ -8,7 +11,8 @@ class Computer
 
   private
   def guess_or_check
-  	create_code if @type == :check
+  	create_code if @type == :guess
+  	guess_code if @type == :check 
   end
 
   def create_code
@@ -18,6 +22,9 @@ class Computer
     end
     #TESTING, DELETE BELOW
     @code = [8,4,2,1]
+  end
+
+  def guess_code
   end
 
   public
@@ -57,7 +64,8 @@ class Computer
 end
 
 class Player
-  attr_reader :guess
+  attr_reader :guess, :type
+
   def initialize(name,type)
   	@name = name
   	@type = type
@@ -65,31 +73,55 @@ class Player
   end
    
   def guess_or_check
-  	guess_code if @type == :guess #else create_code
+  	guess_code if @type == :guess 
+  	create_code if @type == :check
   end
   
   private
   def guess_code
   	puts "Please enter 4 digits between 1-8"
     @guess = gets.chomp
+    sanitize_guess
+  end
+
+  def create_code
+  	puts "Please enter 4 digits between 1-8"
+    @code = gets.chomp
     sanitize_code
   end
   
-  def sanitize_code
-  	guess_code if @guess.length > 4
-
+  def sanitize_guess
+  	guess_code if @guess.length != 4
   	invalid_count = 0
   	@guess.scan(/[^1-8]/){|i|invalid_count += 1}
   	guess_code if invalid_count != 0
   end
+
+  def sanitize_code
+    create_code if @code.length != 4
+  	invalid_count = 0
+  	@code.scan(/[^1-8]/){|i|invalid_count += 1}
+  	create_code if invalid_count != 0
+  end
 end
 
 # Initiate game
-computer = Computer.new(:check)
-player = Player.new("Jimbo", :guess)
+player_name = ask_name
+player_choice = choose_game_type
+
+computer = Computer.new(player_choice)
+player = Player.new(player_name, player_choice)
 
 # Play game
+
+# player guesses computer's code
 player.guess_or_check
-while computer.check(player.guess) == false
-  player.guess_or_check
+if player.type == :guess
+  while computer.check(player.guess) == false
+    player.guess_or_check
+  end
+#else
+  #computer guesses code
 end
+
+# computer guesses player's code
