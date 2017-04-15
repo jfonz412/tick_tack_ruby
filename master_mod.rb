@@ -1,3 +1,4 @@
+# code for the game's intro and instructions
 module Mastermind
   def choose_game_type  
     puts "Enter '1' to guess the computer code \nEnter '2' to create your own code."
@@ -21,21 +22,20 @@ module Mastermind
 end
 
 module Mastermind_obj
-
+  # CHECK METHOD USED FOR BOTH COMPUTER AND PLAYER
   def check(guess_attempt)
     guess = guess_attempt.split('').collect {|i| i.to_i}
-    print guess
     temp_code = @code.dup
-    print temp_code
     if guess == temp_code 
       puts("YOU WIN!!!")
-      return true
+      return 0
     else
       correct_place_count = 0
       correct_num_count = 0
       # CHECK FOR CORRECT NUMBER WITH CORRECT PLACEMENT
       for n in 0..3
         if guess[n] == temp_code[n]
+          $right_answers[n] = guess[n] #for AI
           correct_place_count += 1
           guess[n] = nil
           temp_code[n] = nil
@@ -53,7 +53,8 @@ module Mastermind_obj
 
     end
     puts "Sorry, but you guessed #{correct_place_count} numbers completely correct and #{correct_num_count} correct but in the wrong place."
-    false
+    puts "\n"
+    $right_answers
   end
 
 end

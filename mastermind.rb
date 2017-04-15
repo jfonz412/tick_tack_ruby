@@ -1,5 +1,6 @@
 require './master_mod.rb'
 include Mastermind
+$right_answers = []
 
 class Computer
   attr_reader :comp_guess
@@ -13,7 +14,7 @@ class Computer
   include Mastermind_obj
 
   def guess_code
-    @comp_guess = []
+    @comp_guess = [] 
     for n in 0..3
       @comp_guess[n] = 1 + rand(8)
     end
@@ -49,9 +50,12 @@ class Player
   include Mastermind_obj
 
   def guess_code
-  	puts "Please enter 4 digits between 1-8"
-    @guess = gets.chomp
-    sanitize_guess
+    loop do
+  	  puts "Please enter 4 digits between 1-8"
+      @guess = gets.chomp
+      puts "\n"
+      break if sanitize(@guess) == true
+    end
   end
 
   private
@@ -61,45 +65,39 @@ class Player
   end
 
   def create_code
-  	puts "Create your code with 4 digits between 1-8"
-    @code = gets.chomp
-    sanitize_code
+    loop do
+  	  puts "Create your code with 4 digits between 1-8"
+      @code = gets.chomp
+      break if sanitize(@code) == true
+    end
     @code = @code.split('').collect {|i| i.to_i}
   end
   
-  def sanitize_guess
-  	guess_code if @guess.length != 4
+  def sanitize(input)
+  	return false if input.length != 4
   	invalid_count = 0
-  	@guess.scan(/[^1-8]/){|i|invalid_count += 1}
-  	guess_code if invalid_count != 0
+  	input.scan(/[^1-8]/){|i|invalid_count += 1}
+  	return false if invalid_count != 0
+    true
   end
-
-  def sanitize_code
-    create_code if @code.length != 4
-  	invalid_count = 0
-  	@code.scan(/[^1-8]/){|i|invalid_count += 1}
-  	create_code if invalid_count != 0
-  end
-
 end
 
-# Initiate game
+# Initiate game---------------------------------------------
 player_name = ask_name
 player_choice = choose_game_type
 
 computer = Computer.new(player_choice)
 player = Player.new(player_name, player_choice)
 
-# Play game
-
-# player guesses computer's code
+# Play game-------------------------------------------------
 if player.type == :guess
-  while computer.check(player.guess) == false
+  while computer.check(player.guess) != 0
     player.guess_code
   end
 else
   computer.guess_code
-  while player.check(computer.comp_guess) == false
+  while player.check(computer.comp_guess) != 0
     computer.guess_code
+    print $right_answers
   end
 end
