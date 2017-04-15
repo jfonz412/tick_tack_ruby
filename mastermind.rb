@@ -9,6 +9,17 @@ class Computer
   	guess_or_check
   end
 
+  #check method
+  include Mastermind_obj
+
+  def guess_code
+    @comp_guess = []
+    for n in 0..3
+      @comp_guess[n] = 1 + rand(8)
+    end
+    @comp_guess = @comp_guess.join('') #so that it can be split again during check 
+  end
+  
   private
   def guess_or_check
   	create_code if @type == :guess
@@ -23,48 +34,6 @@ class Computer
     #TESTING, DELETE BELOW
     @code = [8,4,2,1]
   end
-  
-  public
-  def guess_code
-    @comp_guess = []
-    for n in 0..3
-      @comp_guess[n] = 1 + rand(8)
-    end
-  end
-
-  def check(guess_attempt)
-  	guess = guess_attempt.split('').collect {|i| i.to_i}
-  	temp_code = @code.dup
-
-   	if guess == temp_code 
-   	  puts("YOU WIN!!!")
-   	  return true
-   	else
-   	  correct_place_count = 0
-   	  correct_num_count = 0
-   	  # CHECK FOR CORRECT NUMBER WITH CORRECT PLACEMENT
-   	  for n in 0..3
-   	  	if guess[n] == temp_code[n]
-   	  	  correct_place_count += 1
-   	  	  guess[n] = nil
-   	  	  temp_code[n] = nil
-   	  	end
-   	  end
-      # CHECK FOR CORRECT NUMBERS IN THE WRONG PLACE
-   	  for i in 0..3
-   	  	for k in 0..3
-   	  	  if temp_code[i] == guess[k] && guess[k] != nil
-   	  	  	correct_num_count += 1
-   	  	  	temp_code[i] = nil
-   	  	  end
-   	  	end
-   	  end
-
-    end
-    puts "Sorry, but you guessed #{correct_place_count} numbers completely correct and #{correct_num_count} correct but in the wrong place."
-    false
-  end
-
 end
 
 class Player
@@ -75,7 +44,10 @@ class Player
   	@type = type
     guess_or_check
   end
-   
+
+  # check method
+  include Mastermind_obj
+
   def guess_code
   	puts "Please enter 4 digits between 1-8"
     @guess = gets.chomp
@@ -83,7 +55,6 @@ class Player
   end
 
   private
-
   def guess_or_check
     guess_code if @type == :guess 
     create_code if @type == :check
@@ -93,6 +64,7 @@ class Player
   	puts "Create your code with 4 digits between 1-8"
     @code = gets.chomp
     sanitize_code
+    @code = @code.split('').collect {|i| i.to_i}
   end
   
   def sanitize_guess
@@ -108,6 +80,7 @@ class Player
   	@code.scan(/[^1-8]/){|i|invalid_count += 1}
   	create_code if invalid_count != 0
   end
+
 end
 
 # Initiate game
@@ -126,7 +99,7 @@ if player.type == :guess
   end
 else
   computer.guess_code
-  puts computer.comp_guess  
+  while player.check(computer.comp_guess) == false
+    computer.guess_code
+  end
 end
-
-# computer guesses player's code
