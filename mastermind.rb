@@ -2,7 +2,7 @@ require './master_mod.rb'
 include Mastermind
 
 class Computer
-  #attr_reader :code
+  attr_reader :comp_guess
 
   def initialize(type)
   	@type = type
@@ -23,11 +23,15 @@ class Computer
     #TESTING, DELETE BELOW
     @code = [8,4,2,1]
   end
-
+  
+  public
   def guess_code
+    @comp_guess = []
+    for n in 0..3
+      @comp_guess[n] = 1 + rand(8)
+    end
   end
 
-  public
   def check(guess_attempt)
   	guess = guess_attempt.split('').collect {|i| i.to_i}
   	temp_code = @code.dup
@@ -69,23 +73,24 @@ class Player
   def initialize(name,type)
   	@name = name
   	@type = type
- 
+    guess_or_check
   end
    
-  def guess_or_check
-  	guess_code if @type == :guess 
-  	create_code if @type == :check
-  end
-  
-  private
   def guess_code
   	puts "Please enter 4 digits between 1-8"
     @guess = gets.chomp
     sanitize_guess
   end
 
+  private
+
+  def guess_or_check
+    guess_code if @type == :guess 
+    create_code if @type == :check
+  end
+
   def create_code
-  	puts "Please enter 4 digits between 1-8"
+  	puts "Create your code with 4 digits between 1-8"
     @code = gets.chomp
     sanitize_code
   end
@@ -115,13 +120,13 @@ player = Player.new(player_name, player_choice)
 # Play game
 
 # player guesses computer's code
-player.guess_or_check
 if player.type == :guess
   while computer.check(player.guess) == false
-    player.guess_or_check
+    player.guess_code
   end
-#else
-  #computer guesses code
+else
+  computer.guess_code
+  puts computer.comp_guess  
 end
 
 # computer guesses player's code
