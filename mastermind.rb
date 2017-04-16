@@ -90,14 +90,21 @@ computer = Computer.new(player_choice)
 player = Player.new(player_name, player_choice)
 
 # Play game-------------------------------------------------
+turns = 12
 if player.type == :guess
   while computer.check(player.guess) != 0
+    turns -= 1
+    break if turns == 0
+    puts "#{turns} turns left."
     player.guess_code
   end
+  puts "Sorry, game over."
 else
   computer.guess_code
   while player.check(computer.comp_guess) != 0
+    turns -= 1
+    break if turns == 0
+    puts "#{turns} turns left."
     computer.guess_code
-    print $right_answers
   end
 end
