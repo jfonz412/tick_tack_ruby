@@ -1,142 +1,29 @@
-# CLASS DEFINITIONS------------------------------------
-class Board
-  attr_reader :grid
+require './initializer.rb'
+require './player.rb'
+require './board.rb'
+require './checker.rb'
 
-  def initialize
-    @grid = {
- 		A1: ' ',
- 		B1: ' ',
- 		C1: ' ',
- 		A2: ' ',
- 		B2: ' ',
- 		C2: ' ',
- 		A3: ' ',
- 		B3: ' ',
- 		C3: ' ',
- 	}
-  end
-  
-  def draw_grid
-  	columns = 0 #tracks num of columns, not printed
-  	row = 2 #number for each row, printed ('1' is printed manually)
-  	
-  	print "  A B C\n1"
-
-    @grid.each do |space,value|
-   	  print "|#{value}"
-   	  columns += 1
-   	  if columns == 3
-   	  	print "|\n#{row}" if row < 4
-   	  	row += 1
-   	  	columns = 0
-   	  end
-   	end
-
-   	print "|\n"
-  end
-
-  def update(location,piece_type)
-    @grid[location] = piece_type 
-  end
-  
-  def check_win(piece)
-  	checks = 0
-    wins = [
-      [:A1,:A2,:A3],[:B1,:B2,:B3],[:C1,:C2,:C3],[:A1,:B1,:C1],
-      [:A2,:B2,:C2],[:A3,:B3,:C3],[:A1,:B2,:C3],[:C1,:B2,:A3]
-    ]
-
-    wins.each do |i|
-      i.each do |slot|
-        checks += 1 if @grid[slot] == piece
-      end
-      if checks == 3
-      	return true
-      else
-      	checks = 0
-      end
-    end
-
-    false
-  end
-
-end
-
-
-class Player
-  attr_reader :piece_type, :name
-
-  def initialize(name, piece_type)
-    @name = name
-    @piece_type = piece_type
-  end
-  
-  def move(board_state,location)
-    location = location.to_sym
-    if board_state[location] != " "
-      puts "Please pick a valid space"
-    else
-      location
-    end
-  end
-end
-
-def play(player, board)
-  puts "#{player.name}, make your move:"
-
-  move_location = nil
-  while move_location == nil
-    location = gets.chomp.upcase
-    move_location = player.move(board.grid, location)
-  end
-
-  board.update(move_location, player.piece_type)
-  board.draw_grid
-end
-
-def tie_check(grid)
-  count = 0
-  grid.each do |key, value|
-    count += 1 if value == ' '
-  end
-  count
-end
-
-# INITIALIZE BOARD AND PLAYERS
+intro = Initializer.new
 board = Board.new
-board.draw_grid
+checker = Check.new
+player1 = Player.new(intro.p1_name, 'X')
+player2 = Player.new(intro.p2_name, 'O')
+board.draw_board
 
-puts "-----Welcome to Tick Tack Toe!-----"
+loop do
+  # Player 1 goes
+  player1.move(board.grid)
+  board.draw_board(player1.current_move, player1.piece)
+  break if checker.check_board(board.grid, player1.piece) == true
 
-puts "Player 1, please enter your name:"
-p1_name = gets.chomp
-
-puts "Player 2, please enter your name:"
-p2_name = gets.chomp
-
-puts "Player 1 you have X's, player 2 has O's"
-puts "Player 1 goes first!"
-
-player1 = Player.new(p1_name, 'X')
-player2 = Player.new(p2_name, 'O')
-
-# BEGIN PLAYING
-turns = 0
-while true
-  play(player1, board)
-  if board.check_win(player1.piece_type) == true
-  	puts "#{player1.name} wins!!!"
+  if checker.turns == 9
+  	puts "TIE GAME, PLAY AGAIN!!!"
   	break
   end
 
-  if tie_check(board.grid) == 0
-    puts "TIE GAME! TRY AGAIN!!!"
-    break
-  end
-
-  play(player2,board)
-  if board.check_win(player2.piece_type) == true
-  	puts "#{player2.name} wins!!!"
-  	break
-  end
+  # Player 2 goes
+  player2.move(board.grid)
+  board.draw_board(player2.current_move, player2.piece)
+  break if checker.check_board(board.grid, player2.piece) == true
 end
+
