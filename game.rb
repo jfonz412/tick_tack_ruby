@@ -38,7 +38,7 @@ class Board
   def update(location,piece_type)
     @grid[location] = piece_type 
   end
-
+  
   def check_win(piece)
   	checks = 0
     wins = [
