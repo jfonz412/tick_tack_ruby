@@ -141,5 +141,5 @@ loop do
   board.draw_board(player2.current_move, player2.piece)
   break if checker.check_board(board.grid, player2.piece) == true
 end
-# always prints, make conditional
+# always prints, make conditional.
 puts "TIE GAME, PLAY AGAIN!!!"
